@@ -1,0 +1,17 @@
+[tasks.terraform-init]
+dir = "terraform"
+run = "tofu init"
+alias = "init"
+
+[tasks.terraform-plan]
+dir = "terraform"
+run = "tofu plan"
+alias = "plan"
+
+[tasks.terraform-apply]
+dir = "terraform"
+run = "tofu apply -auto-approve"
+alias = "apply"
+
+[tools]
+opentofu = "1.11.5"
