@@ -1,10 +1,4 @@
-# Sample workflow to access AWS resources when workflow is tied to branch
-# The workflow creates a static website using Amazon S3
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-name: AWS example workflow
+name: Terraform Plan
 on: push
 env:
   AWS_REGION: "eu-west-1"
@@ -13,7 +7,7 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
 jobs:
-  S3PackageUpload:
+  TofuPlan:
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
@@ -32,6 +26,12 @@ jobs:
       - name: Check credentials by getting caller identity
         run: |
           aws sts get-caller-identity
-      - name: Check credentials by getting caller identity
+      - name: Check tofu version
         run: |
           tofu --version
+      - name: Run Tofu init
+        run: |
+          mise run init
+      - name: Run Tofu plan
+        run: |
+          mise run plan
