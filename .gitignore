@@ -1,4 +1,6 @@
+# Terraform
 .terraform
+.terraform.lock.hcl
 
 # Logs
 logs
