@@ -8,6 +8,11 @@ module "website_bucket" {
   control_object_ownership = true
   object_ownership         = "ObjectWriter"
 
+  website = {
+    index_document  = "index.html"
+    errror_document = "index.html"
+  }
+
   versioning = {
     enabled = false
   }

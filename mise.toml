@@ -1,5 +1,5 @@
 [tools]
-node = "22"
+node = "22.22.0"
 opentofu = "1.11.5"
 
 [tasks.terraform-init]

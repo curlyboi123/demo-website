@@ -1,0 +1,64 @@
+name: Deploy Website
+on: workflow_dispatch
+env:
+  AWS_REGION: "eu-west-1"
+# permission can be added at job level or workflow level
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+jobs:
+  TofuPlan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v5
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+          log_level: debug
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: arn:aws:iam::005097939719:role/ci-terraform
+          role-session-name: ci-terraform-session
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Check credentials by getting caller identity
+        run: |
+          aws sts get-caller-identity
+      - name: Check tofu version
+        run: |
+          tofu --version
+      - name: Run Tofu init
+        run: |
+          mise run init
+      - name: Run Tofu Apply
+        run: |
+          mise run apply
+  BuildAndDeploy:
+    needs: TofuPlan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22.22.0"
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: arn:aws:iam::005097939719:role/ci-terraform
+          role-session-name: ci-terraform-session
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Check credentials by getting caller identity
+        run: |
+          aws sts get-caller-identity
+      - name: Run npm install
+        run: |
+          npm install
+      - name: Build the website
+        run: |
+          npm run build
+      - name: Upload website to S3
+        run: |
+          aws s3 sync dist/ s3://johnc-vue-website --delete
